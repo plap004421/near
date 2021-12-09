@@ -1,0 +1,42 @@
+sudo apt update && sudo apt upgrade -y
+curl -sL https://deb.nodesource.com/setup_17.x | sudo -E bash -
+sudo apt install build-essential nodejs
+PATH="$PATH"
+
+sudo npm install -g near-cli
+
+apt install python3-pip
+pip3 install --user nearup
+# pip3 install --user --upgrade nearup
+
+echo "export NEAR_ENV=testnet" >> ~/.bashrc
+echo "export USER_BASE_BIN=/root/.local/bin" >> ~/.bashrc
+source ~/.bashrc
+export PATH="$USER_BASE_BIN:$PATH"
+
+CREATE WALLET
+TestNet: https://wallet.testnet.near.org/
+Mainnet: https://wallet.near.org/
+
+near login
+cd ~/.near/testnet
+wget -c https://s3-us-west-1.amazonaws.com/build.nearprotocol.com/nearcore-deploy/testnet/config.json
+wget -c https://s3-us-west-1.amazonaws.com/build.nearprotocol.com/nearcore-deploy/testnet/genesis.json
+
+near generate-key NODE
+cp ~/.near-credentials/testnet/NAMEWALLET.testnet.json ~/.near/testnet/validator_key.json
+cp ~/.near-credentials/testnet/NODE.json ~/.near/testnet/node_key.json
+nano ~/.near/testnet/validator_key.json
+nano ~/.near/testnet/node_key.json
+
+nearup run $NEAR_ENV --account-id XX.pool.f863973.m0
+nearup logs --follow
+___________________________________________________________________________
+
+near call pool.f863973.m0 create_staking_pool '{"staking_pool_id": "plap", "owner_id": "kyc1.testnet", "stake_public_key": "ed25519:EHBHLB4UshggdYoR7Tb2HMjpf6PCow8ahMBvbd1o7T1Q", "reward_fee_fraction": {"numerator": 5, "denominator": 100}}' --accountId="kyc1.testnet" --amount=35 --gas=300000000000000
+
+near call plap.pool.f863973.m0 deposit_and_stake --amount 35 --accountId kyc1.testnet --gas=300000000000000
+
+
+
+
