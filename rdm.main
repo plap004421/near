@@ -32,6 +32,7 @@ wget -c https://s3-us-west-1.amazonaws.com/build.nearprotocol.com/nearcore-deplo
 
 /root/nearcore/target/release/neard --home /root/.near/mainnet/ init --chain-id="mainnet" --account-id=<staking pool id>
 cp /root/.near-credentials/mainnet/WALLET /root/.near/mainnet/validator_key.json
+nano /root/.near/mainnet/validator_key.json
 
 nano /etc/systemd/system/neard.service
 -------------------------------------------
@@ -44,7 +45,7 @@ Type=simple
 WorkingDirectory=/root/.near/mainnet
 ExecStart=/root/nearcore/target/release/neard --home /root/.near/mainnet/ run
 StandardOutput=file:/root/.near/mainnet/neard.log
-StandardError=file:/root/.near/mainnet/nearderror.log
+StandartError=file:/root/.near/mainnet/nearderror.log
 Restart=on-failure
 RestartSec=30
 KillSignal=SIGINT
