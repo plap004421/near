@@ -1,1 +1,69 @@
+sudo apt update && sudo apt upgrade -y
+sudo apt install python3 git curl
+sudo apt install clang build-essential make
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+source $HOME/.cargo/env
+
+git clone https://github.com/nearprotocol/nearcore.git
+export NEAR_RELEASE_VERSION=1.22.0
+cd nearcore
+git checkout $NEAR_RELEASE_VERSION
+make release
+
+curl -sL https://deb.nodesource.com/setup_17.x | sudo -E bash -
+sudo apt install build-essential nodejs
+PATH="$PATH"
+
+sudo npm install -g near-cli
+
+echo "export NEAR_ENV=mainnet" >> ~/.bashrc
+echo "export USER_BASE_BIN=/root/.local/bin" >> ~/.bashrc
+source ~/.bashrc
+export PATH="$USER_BASE_BIN:$PATH"
+
+# Create a wallet : MainNet: https://wallet.near.org/
+
+near login
+
+mkdir ~/.near/mainnet
+cd ~/.near/mainnet
+wget -c https://s3-us-west-1.amazonaws.com/build.nearprotocol.com/nearcore-deploy/mainnet/genesis.json
+wget -c https://s3-us-west-1.amazonaws.com/build.nearprotocol.com/nearcore-deploy/mainnet/config.json
+
+/root/nearcore/target/release/neard --home /root/.near/mainnet/ init --chain-id="mainnet" --account-id=<staking pool id>
+cp /root/.near-credentials/mainnet/WALLET /root/.near/mainnet/validator_key.json
+
+nano /etc/systemd/system/neard.service
+-------------------------------------------
+[Unit]
+Description=NEARd Daemon Service
+
+[Service]
+Type=simple
+#Group=near
+WorkingDirectory=/root/.near/mainnet
+ExecStart=/root/nearcore/target/release/neard --home /root/.near/mainnet/ run
+StandardOutput=file:/root/.near/mainnet/neard.log
+StandardError=file:/root/.near/mainnet/nearderror.log
+Restart=on-failure
+RestartSec=30
+KillSignal=SIGINT
+TimeoutStopSec=45
+KillMode=mixed
+
+[Install]
+WantedBy=multi-user.target
+----------------------------------------------
+
+sudo systemctl enable neard
+systemctl daemon-reload
+sudo systemctl start neard
+
+sudo apt install ccze
+journalctl -n 100 -f -u neard | ccze -A
+tail -f /root/.near/mainnet/neard.log
+
+____________________________________________________________________
+
+near call poolv1.near create_staking_pool '{"staking_pool_id": "<pool id>", "owner_id": "<accountId>", "stake_public_key": "<public key>", "reward_fee_fraction": {"numerator": 7, "denominator": 100}}' --accountId="<accountId>" --amount=35 --gas=300000000000000
 
