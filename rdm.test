@@ -33,9 +33,6 @@ nearup run $NEAR_ENV --account-id XX.pool.f863973.m0
 nearup logs --follow
 ___________________________________________________________________________
 
-near call pool.f863973.m0 create_staking_pool '{"staking_pool_id": "plap", "owner_id": "kyc1.testnet", "stake_public_key": "ed25519:EHBHLB4UshggdYoR7Tb2HMjpf6PCow8ahMBvbd1o7T1Q", "reward_fee_fraction": {"numerator": 5, "denominator": 100}}' --accountId="kyc1.testnet" --amount=35 --gas=300000000000000
-
-near call plap.pool.f863973.m0 deposit_and_stake --amount 35 --accountId kyc1.testnet --gas=300000000000000
 
 
 
